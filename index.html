@@ -8,14 +8,12 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { width: 100%; height: 100%; overflow: hidden; background: #004c99; }
-
         .wrap {
             width: 100%;
             height: 100vh;
             overflow: hidden;
             position: relative;
         }
-
         iframe {
             border: none;
             position: absolute;
@@ -23,14 +21,17 @@
         }
     </style>
     <script>
+        // Detecta si el navegador soporta la propiedad CSS "zoom"
+        var SUPPORTS_ZOOM = (function () {
+            var test = document.createElement("div");
+            return "zoom" in test.style;
+        })();
+
         function resizeIframe() {
-            var dpr = window.devicePixelRatio || 1;
-            var vw  = window.innerWidth;
-            var vh  = window.innerHeight;
-
-            // Si es móvil (DPR alto = pantalla densa)
-            var isMobile = dpr >= 2 && vw < 1200;
-
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            // Detección simplificada: si el viewport es angosto, escalamos
+            var isMobile = vw < 1200;
             var iframe = document.getElementById("appFrame");
             if (!iframe) return;
 
@@ -43,21 +44,33 @@
 
                 iframe.style.width  = appWidth + "px";
                 iframe.style.height = appHeight + "px";
-                iframe.style.transformOrigin = "0 0";
-                iframe.style.transform = "scale(" + scale + ")";
+
+                if (SUPPORTS_ZOOM) {
+                    // "zoom" preserva los eventos táctiles dentro del iframe.
+                    // "transform: scale" los rompe en móviles (Safari/Chrome).
+                    iframe.style.transform = "none";
+                    iframe.style.zoom = scale;
+                } else {
+                    // Fallback para navegadores sin soporte de zoom
+                    iframe.style.zoom = "";
+                    iframe.style.transformOrigin = "0 0";
+                    iframe.style.transform = "scale(" + scale + ")";
+                }
             } else {
                 // PC: tamaño normal
                 iframe.style.width  = "100%";
                 iframe.style.height = "100%";
                 iframe.style.transform = "none";
+                iframe.style.zoom = "";
             }
         }
-
         window.addEventListener("load",   resizeIframe);
         window.addEventListener("resize", resizeIframe);
 
         // SHARE — recibe mensaje del iframe y ejecuta Web Share API desde el contexto correcto
         window.addEventListener("message", function(e) {
+            // Solo aceptamos mensajes que vengan del propio Apps Script
+            if (e.origin !== "https://script.google.com") return;
             if (!e.data || e.data.type !== "share") return;
             var url    = e.data.url;
             var nombre = e.data.nombre;
