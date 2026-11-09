@@ -3,99 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Tiquetes Dimayor</title>
-    <link rel="icon" href="favicon.ico">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #004c99; }
-        .wrap {
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            position: relative;
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
         }
-        iframe {
-            border: none;
-            position: absolute;
-            top: 0; left: 0;
+
+        html,
+        body{
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            background:#004c99;
+        }
+
+        iframe{
+            width:100%;
+            height:100%;
+            border:none;
+            display:block;
         }
     </style>
-    <script>
-        // Detecta si el navegador soporta la propiedad CSS "zoom"
-        var SUPPORTS_ZOOM = (function () {
-            var test = document.createElement("div");
-            return "zoom" in test.style;
-        })();
-
-        function resizeIframe() {
-            var vw = window.innerWidth;
-            var vh = window.innerHeight;
-            // Detección simplificada: si el viewport es angosto, escalamos
-            var isMobile = vw < 1200;
-            var iframe = document.getElementById("appFrame");
-            if (!iframe) return;
-
-            if (isMobile) {
-                // El iframe de Apps Script se renderiza a ~980px
-                // Lo escalamos para que quepa en la pantalla real
-                var appWidth  = 980;
-                var scale     = vw / appWidth;
-                var appHeight = vh / scale;
-
-                iframe.style.width  = appWidth + "px";
-                iframe.style.height = appHeight + "px";
-
-                if (SUPPORTS_ZOOM) {
-                    // "zoom" preserva los eventos táctiles dentro del iframe.
-                    // "transform: scale" los rompe en móviles (Safari/Chrome).
-                    iframe.style.transform = "none";
-                    iframe.style.zoom = scale;
-                } else {
-                    // Fallback para navegadores sin soporte de zoom
-                    iframe.style.zoom = "";
-                    iframe.style.transformOrigin = "0 0";
-                    iframe.style.transform = "scale(" + scale + ")";
-                }
-            } else {
-                // PC: tamaño normal
-                iframe.style.width  = "100%";
-                iframe.style.height = "100%";
-                iframe.style.transform = "none";
-                iframe.style.zoom = "";
-            }
-        }
-        window.addEventListener("load",   resizeIframe);
-        window.addEventListener("resize", resizeIframe);
-
-        // SHARE — recibe mensaje del iframe y ejecuta Web Share API desde el contexto correcto
-        window.addEventListener("message", function(e) {
-            // Solo aceptamos mensajes que vengan del propio Apps Script
-            if (e.origin !== "https://script.google.com") return;
-            if (!e.data || e.data.type !== "share") return;
-            var url    = e.data.url;
-            var nombre = e.data.nombre;
-            if (navigator.share) {
-                navigator.share({
-                    title: nombre,
-                    text: "Te comparto este archivo de Dimayor: " + nombre,
-                    url: url
-                }).catch(function() {});
-            } else if (navigator.clipboard) {
-                navigator.clipboard.writeText(url).then(function() {
-                    alert("Enlace copiado al portapapeles ✓");
-                });
-            }
-        });
-    </script>
 </head>
+
 <body>
-    <div class="wrap">
-        <iframe
-            id="appFrame"
-            src="https://script.google.com/a/macros/dimayor.com.co/s/AKfycbxtyKizW_B7U9sbSWEfmHQhxEOPF5LwXRDx6RISmseIZ2qgMHuJSZ8yTVwZs6akdqvqGg/exec"
-            scrolling="yes"
-            title="SGI Dimayor"
-        ></iframe>
-    </div>
+
+    <iframe
+        src="https://script.google.com/a/macros/dimayor.com.co/s/AKfycbxtyKizW_B7U9sbSWEfmHQhxEOPF5LwXRDx6RISmseIZ2qgMHuJSZ8yTVwZs6akdqvqGg/exec?authuser=0"
+        allow="fullscreen">
+    </iframe>
+
 </body>
 </html>
